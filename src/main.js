@@ -10,7 +10,7 @@ function activate(context) {
 
         if (key) {
             vscode.env.clipboard.writeText(key).then(() => {
-                vscode.window.setStatusBarMessage(`"${key}" is copied!`);
+                vscode.window.setStatusBarMessage(`"${key}" is copied!`, 3000);
             });
         }
     });
