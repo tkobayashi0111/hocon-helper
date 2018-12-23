@@ -1,6 +1,8 @@
 class Node {
-    constructor(key) {
+    constructor(key, line, column) {
         this.key = key;
+        this.line = line;
+        this.column = column;
         this.parent = null;
         this.children = [];
     }
@@ -37,6 +39,20 @@ class Node {
 
         return keys.reverse().join('.');
     }
+
+    search(key) {
+        const keys = key.split('.');
+        const node = this.children.find((child) => child.key === keys[0]);
+        if (!node) {
+            return null;
+        }
+
+        if (keys.length === 1) {
+            return node;
+        } else {
+            return node.search(keys.slice(1).join('.'));
+        }
+    }
 }
 
 class Root extends Node {
@@ -46,18 +62,19 @@ class Root extends Node {
 }
 
 class Leaf extends Node {
-    constructor(key, value) {
-        super(key);
+    constructor(key, value, line, column) {
+        super(key, line, column);
         this.value = value;
     }
 }
 
 function parse(text) {
-    const nodeRegex = /^\s*([\w"]+)\s*:?\s*{\s*$/;
-    const leafRegex = /^\s*([\w"]+)\s*[:=]\s*(.+?)\s*,?\s*$/;
+    const nodeRegex = /([\w"]+)\s*:?\s*{\s*$/;
+    const leafRegex = /([\w"]+)\s*[:=]\s*(.+?)\s*,?\s*$/;
     const closeBracketRegex = /^\s*}\s*$/;
 
-    let currentNode = new Root();
+    const rootNode = new Root();
+    let currentNode = rootNode;
     const lines = text.split(/\r?\n/);
     lines.forEach((line, i) => {
         const isLastLine = i === lines.length - 1;
@@ -65,7 +82,7 @@ function parse(text) {
         const nodeMatches = line.match(nodeRegex);
         if (nodeMatches) {
             const key = trim(nodeMatches[1]);
-            const node = new Node(key);
+            const node = new Node(key, i, nodeMatches.index);
             currentNode.addChild(node);
             currentNode = node;
             return;
@@ -75,7 +92,7 @@ function parse(text) {
         if (leafMatches) {
             const key = trim(leafMatches[1]);
             const value = trim(leafMatches[2]);
-            const leaf = new Leaf(key, value);
+            const leaf = new Leaf(key, value, i, leafMatches.index);
             if (currentNode) {
                 currentNode.addChild(leaf);
             }
@@ -98,7 +115,10 @@ function parse(text) {
         }
     });
 
-    return currentNode;
+    return {
+        rootNode,
+        targetNode: currentNode,
+    };
 }
 
 function trim(value) {

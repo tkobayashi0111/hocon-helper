@@ -10,20 +10,34 @@
 		"Other"
 	],
 	"activationEvents": [
-		"onCommand:extension.copyHoconKey"
+		"onCommand:extension.copyHoconKey",
+		"onCommand:extension.searchHoconKey"
 	],
 	"main": "./src/main.js",
 	"contributes": {
-		"commands": [{
-            "command": "extension.copyHoconKey",
-			"title": "Copy Hocon Key"
-		}],
-		"menus": {
-			"editor/context": [{
-				"when": "editorLangId == properties",
+		"commands": [
+			{
 				"command": "extension.copyHoconKey",
-				"group": "9_cutcopypaste@10"
-			}]
+				"title": "Copy Hocon Key"
+			},
+			{
+				"command": "extension.searchHoconKey",
+				"title": "Search Hocon Key"
+			}
+		],
+		"menus": {
+			"editor/context": [
+				{
+					"when": "editorLangId == properties",
+					"command": "extension.copyHoconKey",
+					"group": "9_cutcopypaste@10"
+				},
+				{
+					"when": "editorLangId == properties",
+					"command": "extension.searchHoconKey",
+					"group": "9_cutcopypaste@11"
+				}
+			]
 		}
 	},
 	"scripts": {

@@ -7,13 +7,33 @@ const HoconHelper = require('./HoconHelper');
 function activate(context) {
     console.log('Congratulations, your extension "hocon-helper" is now active!');
 
-    const disposable = vscode.commands.registerCommand('extension.copyHoconKey', () => {
+    const disposableCopy = vscode.commands.registerCommand('extension.copyHoconKey', () => {
         const key = HoconHelper.getKey();
-        vscode.env.clipboard.writeText(key);
-        console.log(key);
+
+        if (key) {
+            vscode.env.clipboard.writeText(key);
+            console.log(key);
+        }
     });
 
-    context.subscriptions.push(disposable);
+    const disposableSearch = vscode.commands.registerCommand('extension.searchHoconKey', () => {
+        vscode.window.showInputBox().then((key) => {
+            if (!key) return;
+
+            const node = HoconHelper.search(key);
+            if (node) {
+                const editor = vscode.window.activeTextEditor;
+                const position = new vscode.Position(node.line, node.column);
+                editor.selection = new vscode.Selection(position, position);
+                editor.revealRange(new vscode.Range(position, position), vscode.TextEditorRevealType.InCenter);
+            } else {
+                vscode.window.setStatusBarMessage(`"${key}" is not found.`, 3000);
+            }
+        });
+    });
+
+    context.subscriptions.push(disposableCopy);
+    context.subscriptions.push(disposableSearch);
 }
 
 // this method is called when your extension is deactivated
