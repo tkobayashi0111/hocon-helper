@@ -5,14 +5,13 @@ const HoconHelper = require('./HoconHelper');
  * @param {vscode.ExtensionContext} context
  */
 function activate(context) {
-    console.log('Congratulations, your extension "hocon-helper" is now active!');
-
     const disposableCopy = vscode.commands.registerCommand('extension.copyHoconKey', () => {
         const key = HoconHelper.getKey();
 
         if (key) {
-            vscode.env.clipboard.writeText(key);
-            console.log(key);
+            vscode.env.clipboard.writeText(key).then(() => {
+                vscode.window.setStatusBarMessage(`"${key}" is copied!`);
+            });
         }
     });
 
