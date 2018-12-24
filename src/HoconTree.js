@@ -72,12 +72,18 @@ function parse(text) {
     const nodeRegex = /([\w"]+)\s*:?\s*{\s*$/;
     const leafRegex = /([\w"]+)\s*[:=]\s*(.+?)\s*,?\s*$/;
     const closeBracketRegex = /^\s*}\s*$/;
+    let isClosed = false;
 
     const rootNode = new Root();
     let currentNode = rootNode;
     const lines = text.split(/\r?\n/);
     lines.forEach((line, i) => {
         const isLastLine = i === lines.length - 1;
+
+        if (isClosed) {
+            currentNode = currentNode.parent;
+            isClosed = false;
+        }
 
         const nodeMatches = line.match(nodeRegex);
         if (nodeMatches) {
@@ -93,9 +99,7 @@ function parse(text) {
             const key = trim(leafMatches[1]);
             const value = trim(leafMatches[2]);
             const leaf = new Leaf(key, value, i, leafMatches.index);
-            if (currentNode) {
-                currentNode.addChild(leaf);
-            }
+            currentNode.addChild(leaf);
             if (isLastLine) {
                 currentNode = leaf;
             }
@@ -104,13 +108,7 @@ function parse(text) {
 
         const closeBracketMatches = line.match(closeBracketRegex);
         if (closeBracketMatches) {
-            if (!isLastLine) {
-                if (currentNode.parent) {
-                    currentNode = currentNode.parent;
-                } else {
-                    throw new Error(`Syntax error. Line ${i}:${closeBracketMatches.index}`);
-                }
-            }
+            isClosed = true;
             return;
         }
     });
