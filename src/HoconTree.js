@@ -25,6 +25,22 @@ class Node {
         }
     }
 
+    addChildFromKey(line, column, key, value = null) {
+        const keys = key.split('.');
+        let node = this;
+        keys.forEach((_key, i) => {
+            const isLastKey = i === keys.length;
+            const _node = node;
+            if (!isLastKey || !value) {
+                node = new Node(_key, line, column);
+            } else if (value) {
+                node = new Leaf(_key, value, line, column);
+            }
+            _node.addChild(node);
+        })
+        return node;
+    }
+
     getKey() {
         if (this instanceof Root) {
             return '';
@@ -69,8 +85,8 @@ class Leaf extends Node {
 }
 
 function parse(text) {
-    const nodeRegex = /([\w"]+)\s*[:=]?\s*{\s*$/;
-    const leafRegex = /([\w"]+)\s*[:=]\s*(.+?)\s*,?\s*$/;
+    const nodeRegex = /([\w"\.]+)\s*[:=]?\s*{\s*$/;
+    const leafRegex = /([\w"\.]+)\s*[:=]\s*(.+?)\s*,?\s*$/;
     const closeBracketRegex = /^\s*}\s*$/;
     let isClosed = false;
 
@@ -88,8 +104,7 @@ function parse(text) {
         const nodeMatches = line.match(nodeRegex);
         if (nodeMatches) {
             const key = trim(nodeMatches[1]);
-            const node = new Node(key, i, nodeMatches.index);
-            currentNode.addChild(node);
+            const node = currentNode.addChildFromKey(i, nodeMatches.index, key);
             currentNode = node;
             return;
         }
@@ -98,10 +113,9 @@ function parse(text) {
         if (leafMatches) {
             const key = trim(leafMatches[1]);
             const value = trim(leafMatches[2]);
-            const leaf = new Leaf(key, value, i, leafMatches.index);
-            currentNode.addChild(leaf);
+            const node = currentNode.addChildFromKey(i, leafMatches.index, key, value);
             if (isLastLine) {
-                currentNode = leaf;
+                currentNode = node;
             }
             return;
         }
