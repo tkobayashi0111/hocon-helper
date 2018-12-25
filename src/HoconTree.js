@@ -41,7 +41,7 @@ class Node {
         return node;
     }
 
-    getKey() {
+    getKey(ignoreFirstKey = true) {
         if (this instanceof Root) {
             return '';
         }
@@ -53,12 +53,20 @@ class Node {
             parent = parent.parent;
         }
 
+        if (ignoreFirstKey) {
+            keys.pop();
+        }
         return keys.reverse().join('.');
     }
 
-    search(key) {
+    search(key, ignoreFirstKey = true) {
         const keys = key.split('.');
-        const node = this.children.find((child) => child.key === keys[0]);
+
+        let targetNode = this;
+        if (ignoreFirstKey && targetNode.children.length > 0) {
+            targetNode = targetNode.children[0];
+        }
+        const node = targetNode.children.find((child) => child.key === keys[0]);
         if (!node) {
             return null;
         }
@@ -66,7 +74,7 @@ class Node {
         if (keys.length === 1) {
             return node;
         } else {
-            return node.search(keys.slice(1).join('.'));
+            return node.search(keys.slice(1).join('.'), false);
         }
     }
 }
