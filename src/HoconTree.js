@@ -95,18 +95,23 @@ class Leaf extends Node {
 function parse(text) {
     const nodeRegex = /([\w"\.]+)\s*[:=]?\s*{\s*$/;
     const leafRegex = /([\w"\.]+)\s*[:=]\s*(.+?)\s*,?\s*$/;
-    const closeBracketRegex = /^\s*}\s*$/;
+    const closeBracketRegex = /^\s*}\s*,?\s*$/;
     let isClosed = false;
 
     const rootNode = new Root();
     let currentNode = rootNode;
     const lines = text.split(/\r?\n/);
+    let backCount = 1;
     lines.forEach((line, i) => {
         const isLastLine = i === lines.length - 1;
 
         if (isClosed) {
-            currentNode = currentNode.parent;
+            while (backCount > 0) {
+                currentNode = currentNode.parent;
+                backCount--;
+            }
             isClosed = false;
+            backCount = 1;
         }
 
         const nodeMatches = line.match(nodeRegex);
@@ -114,6 +119,7 @@ function parse(text) {
             const key = trim(nodeMatches[1]);
             const node = currentNode.addChildFromKey(i, nodeMatches.index, key);
             currentNode = node;
+            backCount = key.split('.').length;
             return;
         }
 
