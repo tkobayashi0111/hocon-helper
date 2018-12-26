@@ -12,11 +12,6 @@ class HoconHelper {
         const anchor = editor.selection.anchor;
         const anchorLine = document.lineAt(anchor.line);
         const targetText = document.getText(new vscode.Range(0, 0, anchorLine.lineNumber, anchorLine.text.length));
-        try {
-            const { targetNode } = HoconTree.parse(targetText);
-        } catch (e) {
-            console.log(e);
-        }
         const { targetNode } = HoconTree.parse(targetText);
         return targetNode ? targetNode.getKey() : '';
     }
