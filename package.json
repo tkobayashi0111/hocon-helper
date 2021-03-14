@@ -3,7 +3,7 @@
 	"displayName": "hocon-helper",
 	"publisher": "tkobayashi0111",
 	"description": "",
-	"version": "0.0.1",
+	"version": "0.0.2",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/tkobayashi0111/hocon-helper"

@@ -94,7 +94,7 @@ class Leaf extends Node {
 
 function parse(text) {
     const nodeRegex = /([\w"\.]+)\s*[:=]?\s*{\s*$/;
-    const leafRegex = /([\w"\.]+)\s*[:=]\s*(.+?)\s*,?\s*$/;
+    const leafRegex = /([\w"\.-]+)\s*[:=]\s*(.+?)\s*,?\s*$/;
     const closeBracketRegex = /^\s*}\s*,?\s*$/;
     let isClosed = false;
 
